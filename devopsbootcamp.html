@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Bootcamp Course</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Toggle Button */
+        .toggle-btn {
+            position: fixed;
+            top: 10px;
+            left: 360px;
+            z-index: 1001;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: left 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .toggle-btn:hover {
+            background-color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .toggle-btn.collapsed {
+            left: 10px;
+        }
+        
+        /* Layout Container */
+        .layout {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Left Sidebar */
+        .sidebar {
+            width: 350px;
+            background: #ffffff;
+            overflow-y: auto;
+            border-right: 2px solid #e5e7eb;
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar.hidden {
+            margin-left: -350px;
+        }
+        
+        /* Right Content Area */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+        
+        /* Header */
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        /* Video Player Container */
+        .video-container {
+            flex: 1;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+        
+        video {
+            flex: 1;
+            width: 100%;
+            object-fit: contain;
+            min-height: 0;
+        }
+
+        /* Player Controls Bar */
+        .player-controls {
+            background: #1f2937;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            min-height: 60px;
+        }
+
+        .now-playing-text {
+            font-size: 0.95rem;
+            flex-grow: 1;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 10px;
+        }
+
+        /* Shared Button Styling */
+        .nav-btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            min-width: 100px;
+        }
+
+        .nav-btn:hover {
+            background-color: #3b82f6;
+        }
+        
+        .nav-btn:disabled {
+            background-color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        /* Specific margins */
+        .prev-btn { margin-right: 15px; }
+        .next-btn { margin-left: 15px; }
+
+        /* Module List Styling */
+        .module {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .module-header {
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .module-header:hover {
+            background-color: #1e40af;
+        }
+        .module-header::after {
+            content: '\25BC';
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+        .module.collapsed .module-header::after {
+            transform: rotate(-90deg);
+        }
+        .module ul {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .module.collapsed ul {
+            max-height: 0;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #374151;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        a:hover {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+        
+        /* Active State (Currently Playing) */
+        a.active {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #2563eb;
+        }
+
+        .lesson-name {
+            font-weight: 500;
+        }
+        .file-tag {
+            font-size: 0.75rem;
+            color: #2563eb;
+            background: #dbeafe;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid #2563eb;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        a:hover .file-tag {
+            background: #2563eb;
+            color: white;
+        }
+        a.active .file-tag {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+    </style>
+</head>
+<body>
+
+<button class="toggle-btn" id="toggleBtn">&lt;</button>
+
+<div class="layout">
+    <div class="sidebar" id="sidebar">
+
+    <div class="module">
+        <div class="module-header">Bootcamp Overview</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson1.mp4" class="video-link" data-title="1 - Bootcamp Overview"><span class="lesson-name">1 - Bootcamp Overview</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson2.mp4" class="video-link" data-title="2 - Introduction to DevOps"><span class="lesson-name">2 - Introduction to DevOps</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Version Control (Git)</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson3.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson4.mp4" class="video-link" data-title="1 - Introduction to Version Control and Git"><span class="lesson-name">1 - Introduction to Version Control and Git</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson5.mp4" class="video-link" data-title="2 - Basic Concepts of Git"><span class="lesson-name">2 - Basic Concepts of Git</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson6.mp4" class="video-link" data-title="3 - Setup Git Repository Remote and Local"><span class="lesson-name">3 - Setup Git Repository Remote and Local</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson7.mp4" class="video-link" data-title="4 - Working with Git"><span class="lesson-name">4 - Working with Git</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson8.mp4" class="video-link" data-title="5 - Initialize a Git project locally"><span class="lesson-name">5 - Initialize a Git project locally</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson9.mp4" class="video-link" data-title="6 - Concept of Branches"><span class="lesson-name">6 - Concept of Branches</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson10.mp4" class="video-link" data-title="7 - Merge Requests"><span class="lesson-name">7 - Merge Requests</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson11.mp4" class="video-link" data-title="8 - Deleting Branches"><span class="lesson-name">8 - Deleting Branches</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson12.mp4" class="video-link" data-title="9 - Rebase"><span class="lesson-name">9 - Rebase</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson13.mp4" class="video-link" data-title="10 - Resolving Merge Conflicts"><span class="lesson-name">10 - Resolving Merge Conflicts</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson14.mp4" class="video-link" data-title="11 - Gitignore"><span class="lesson-name">11 - Gitignore</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson15.mp4" class="video-link" data-title="12 - Git stash"><span class="lesson-name">12 - Git stash</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson16.mp4" class="video-link" data-title="13 - Going back in history"><span class="lesson-name">13 - Going back in history</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson17.mp4" class="video-link" data-title="14 - Undoing commits"><span class="lesson-name">14 - Undoing commits</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson18.mp4" class="video-link" data-title="15 - Merging branches"><span class="lesson-name">15 - Merging branches</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson19.mp4" class="video-link" data-title="16 - Git for Devops"><span class="lesson-name">16 - Git for Devops</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Databases</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson20.mp4" class="video-link" data-title="1 - Databases in development process"><span class="lesson-name">1 - Databases in development process</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson21.mp4" class="video-link" data-title="2 - Database Types"><span class="lesson-name">2 - Database Types</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Build Tools</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson22.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson23.mp4" class="video-link" data-title="1 - Introduction to Build Tools"><span class="lesson-name">1 - Introduction to Build Tools</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson24.mp4" class="video-link" data-title="2 - Install Build Tools"><span class="lesson-name">2 - Install Build Tools</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson25.mp4" class="video-link" data-title="3 - Build an Artifact"><span class="lesson-name">3 - Build an Artifact</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson26.mp4" class="video-link" data-title="4 - Build Tools for Development"><span class="lesson-name">4 - Build Tools for Development</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson27.mp4" class="video-link" data-title="5 - Run the Application"><span class="lesson-name">5 - Run the Application</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson28.mp4" class="video-link" data-title="6 - Build JS Applications"><span class="lesson-name">6 - Build JS Applications</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson29.mp4" class="video-link" data-title="7 - Common Concepts and Differences of Build Tools"><span class="lesson-name">7 - Common Concepts and Differences of Build Tools</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson30.mp4" class="video-link" data-title="8 - Publish an Artifact"><span class="lesson-name">8 - Publish an Artifact</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson31.mp4" class="video-link" data-title="9 - Build Tools & Docker"><span class="lesson-name">9 - Build Tools & Docker</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson32.mp4" class="video-link" data-title="10 - Build Tools for DevOps"><span class="lesson-name">10 - Build Tools for DevOps</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Cloud & IaaS</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson33.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson34.mp4" class="video-link" data-title="1 - Intro to Cloud & IaaS"><span class="lesson-name">1 - Intro to Cloud & IaaS</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson35.mp4" class="video-link" data-title="2 - Setup Server on DigitalOcean"><span class="lesson-name">2 - Setup Server on DigitalOcean</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson36.mp4" class="video-link" data-title="3 - Deploy and run application artifact on Droplet"><span class="lesson-name">3 - Deploy and run application artifact on Droplet</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson37.mp4" class="video-link" data-title="4 - Create and configure a Linux user on a cloud server"><span class="lesson-name">4 - Create and configure a Linux user on a cloud server</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Artifact Repository (Nexus)</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson38.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson39.mp4" class="video-link" data-title="1 - Intro to Artifact Repository Manager"><span class="lesson-name">1 - Intro to Artifact Repository Manager</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson40.mp4" class="video-link" data-title="2 - Install and Run Nexus on a cloud server"><span class="lesson-name">2 - Install and Run Nexus on a cloud server</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson41.mp4" class="video-link" data-title="3 - Introduction to Nexus"><span class="lesson-name">3 - Introduction to Nexus</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson42.mp4" class="video-link" data-title="4 - Repository Types"><span class="lesson-name">4 - Repository Types</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson43.mp4" class="video-link" data-title="5 - Publish Artifact to Repository"><span class="lesson-name">5 - Publish Artifact to Repository</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson44.mp4" class="video-link" data-title="6 - Nexus REST API"><span class="lesson-name">6 - Nexus REST API</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson45.mp4" class="video-link" data-title="7 - Blob Store"><span class="lesson-name">7 - Blob Store</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson46.mp4" class="video-link" data-title="8 - Component vs Asset"><span class="lesson-name">8 - Component vs Asset</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson47.mp4" class="video-link" data-title="9 - Cleanup Policies and Scheduled Tasks"><span class="lesson-name">9 - Cleanup Policies and Scheduled Tasks</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Docker & Containers</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson48.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson49.mp4" class="video-link" data-title="1 - What is a Container"><span class="lesson-name">1 - What is a Container</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson50.mp4" class="video-link" data-title="2 - Container vs Image"><span class="lesson-name">2 - Container vs Image</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson51.mp4" class="video-link" data-title="3 - Docker vs. Virtual Machine"><span class="lesson-name">3 - Docker vs. Virtual Machine</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson52.mp4" class="video-link" data-title="4 - Docker Architecture and components"><span class="lesson-name">4 - Docker Architecture and components</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson53.mp4" class="video-link" data-title="5 - Main Docker Commands"><span class="lesson-name">5 - Main Docker Commands</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson54.mp4" class="video-link" data-title="6 - Debug Commands"><span class="lesson-name">6 - Debug Commands</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson55.mp4" class="video-link" data-title="7 - Docker Demo - Project Overview"><span class="lesson-name">7 - Docker Demo - Project Overview</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson56.mp4" class="video-link" data-title="8 - Developing with Docker"><span class="lesson-name">8 - Developing with Docker</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson57.mp4" class="video-link" data-title="9 - Docker Compose - Run multiple Docker containers"><span class="lesson-name">9 - Docker Compose - Run multiple Docker containers</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson58.mp4" class="video-link" data-title="10 - Dockerfile - Build your own Docker Image"><span class="lesson-name">10 - Dockerfile - Build your own Docker Image</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson59.mp4" class="video-link" data-title="11 - Private Docker Repository"><span class="lesson-name">11 - Private Docker Repository</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson60.mp4" class="video-link" data-title="12 - Deploy docker application on a server"><span class="lesson-name">12 - Deploy docker application on a server</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson61.mp4" class="video-link" data-title="13 - Docker Volumes - Persisting Data"><span class="lesson-name">13 - Docker Volumes - Persisting Data</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson62.mp4" class="video-link" data-title="14 - Docker Volumes Demo"><span class="lesson-name">14 - Docker Volumes Demo</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson63.mp4" class="video-link" data-title="15 - Create Docker Hosted Repository on Nexus"><span class="lesson-name">15 - Create Docker Hosted Repository on Nexus</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson64.mp4" class="video-link" data-title="16 - Deploy Nexus as Docker Container"><span class="lesson-name">16 - Deploy Nexus as Docker Container</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Build Automation (Jenkins)</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson65.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson66.mp4" class="video-link" data-title="1 - Intro to Build Automation"><span class="lesson-name">1 - Intro to Build Automation</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson67.mp4" class="video-link" data-title="2 - Install Jenkins"><span class="lesson-name">2 - Install Jenkins</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson68.mp4" class="video-link" data-title="3 - Introduction to Jenkins UI"><span class="lesson-name">3 - Introduction to Jenkins UI</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson69.mp4" class="video-link" data-title="4 - Install Build Tools in Jenkins"><span class="lesson-name">4 - Install Build Tools in Jenkins</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson70.mp4" class="video-link" data-title="5 - Jenkins Basics Demo - Freestyle Job"><span class="lesson-name">5 - Jenkins Basics Demo - Freestyle Job</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson71.mp4" class="video-link" data-title="6 - Docker in Jenkins"><span class="lesson-name">6 - Docker in Jenkins</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson72.mp4" class="video-link" data-title="7 - Freestyle to Pipeline Job"><span class="lesson-name">7 - Freestyle to Pipeline Job</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson73.mp4" class="video-link" data-title="8 - Intro to Pipeline Job"><span class="lesson-name">8 - Intro to Pipeline Job</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson74.mp4" class="video-link" data-title="9 - Jenkinsfile Syntax"><span class="lesson-name">9 - Jenkinsfile Syntax</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson75.mp4" class="video-link" data-title="10 - Create complete Pipeline"><span class="lesson-name">10 - Create complete Pipeline</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson76.mp4" class="video-link" data-title="11 - Intro to Multibranch Pipeline"><span class="lesson-name">11 - Intro to Multibranch Pipeline</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson77.mp4" class="video-link" data-title="12 - Jenkins Jobs Overview"><span class="lesson-name">12 - Jenkins Jobs Overview</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson78.mp4" class="video-link" data-title="13 - Credentials in Jenkins"><span class="lesson-name">13 - Credentials in Jenkins</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson79.mp4" class="video-link" data-title="14 - Jenkins Shared Library"><span class="lesson-name">14 - Jenkins Shared Library</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson80.mp4" class="video-link" data-title="15 - Webhooks - Trigger Pipeline Jobs automatically"><span class="lesson-name">15 - Webhooks - Trigger Pipeline Jobs automatically</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson81.mp4" class="video-link" data-title="16 - Dynamically Increment Application version in Jenkins Pipeline - Part 1"><span class="lesson-name">16 - Dynamically Increment Application version in Jenkins Pipeline - Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson82.mp4" class="video-link" data-title="17 - Dynamically Increment Application version in Jenkins Pipeline - Part 2"><span class="lesson-name">17 - Dynamically Increment Application version in Jenkins Pipeline - Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">AWS Services</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson83.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson84.mp4" class="video-link" data-title="1 - Introduction to AWS"><span class="lesson-name">1 - Introduction to AWS</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson85.mp4" class="video-link" data-title="2 - Create an AWS account"><span class="lesson-name">2 - Create an AWS account</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson86.mp4" class="video-link" data-title="3 - IAM - Manage Users, Roles and Permissions"><span class="lesson-name">3 - IAM - Manage Users, Roles and Permissions</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson87.mp4" class="video-link" data-title="4 - Regions & Availability Zones"><span class="lesson-name">4 - Regions & Availability Zones</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson88.mp4" class="video-link" data-title="5 - VPC - Manage Private Network on AWS"><span class="lesson-name">5 - VPC - Manage Private Network on AWS</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson89.mp4" class="video-link" data-title="6 - CIDR Blocks explained"><span class="lesson-name">6 - CIDR Blocks explained</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson90.mp4" class="video-link" data-title="7 - Introduction to EC2 Virtual Cloud Server"><span class="lesson-name">7 - Introduction to EC2 Virtual Cloud Server</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson91.mp4" class="video-link" data-title="8 - Deploy to EC2 server from Jenkins Pipeline - CI/CD Part 1"><span class="lesson-name">8 - Deploy to EC2 server from Jenkins Pipeline - CI/CD Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson92.mp4" class="video-link" data-title="9 - Deploy to EC2 server from Jenkins Pipeline - CI/CD Part 2"><span class="lesson-name">9 - Deploy to EC2 server from Jenkins Pipeline - CI/CD Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson93.mp4" class="video-link" data-title="10 - Deploy to EC2 server from Jenkins Pipeline - CI/CD Part 3"><span class="lesson-name">10 - Deploy to EC2 server from Jenkins Pipeline - CI/CD Part 3</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson94.mp4" class="video-link" data-title="11 - Introduction to AWS CLI"><span class="lesson-name">11 - Introduction to AWS CLI</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson95.mp4" class="video-link" data-title="12 - AWS & Terraform Preview"><span class="lesson-name">12 - AWS & Terraform Preview</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson96.mp4" class="video-link" data-title="13 - Container Services on AWS Preview"><span class="lesson-name">13 - Container Services on AWS Preview</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Kubernetes (K8s)</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson97.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson98.mp4" class="video-link" data-title="1 - Intro to Kubernetes"><span class="lesson-name">1 - Intro to Kubernetes</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson99.mp4" class="video-link" data-title="2 - Main Kubernetes Components"><span class="lesson-name">2 - Main Kubernetes Components</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson100.mp4" class="video-link" data-title="3 - Kubernetes Architecture"><span class="lesson-name">3 - Kubernetes Architecture</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson101.mp4" class="video-link" data-title="4 - Minikube and kubectl - Local Kubernetes Cluster"><span class="lesson-name">4 - Minikube and kubectl - Local Kubernetes Cluster</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson102.mp4" class="video-link" data-title="5 - Main kubectl commands"><span class="lesson-name">5 - Main kubectl commands</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson103.mp4" class="video-link" data-title="6 - YAML Configuration File"><span class="lesson-name">6 - YAML Configuration File</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson104.mp4" class="video-link" data-title="7 - Complete Demo Project - Deploying Application in Kubernetes Cluster"><span class="lesson-name">7 - Complete Demo Project - Deploying Application in Kubernetes Cluster</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson105.mp4" class="video-link" data-title="8 - Namespaces - Organizing Components"><span class="lesson-name">8 - Namespaces - Organizing Components</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson106.mp4" class="video-link" data-title="9 - Services - Connecting to Applications inside cluster"><span class="lesson-name">9 - Services - Connecting to Applications inside cluster</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson107.mp4" class="video-link" data-title="10 - Ingress - Connecting to Applications outside cluster"><span class="lesson-name">10 - Ingress - Connecting to Applications outside cluster</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson108.mp4" class="video-link" data-title="11 - Volumes - Persisting Application Data"><span class="lesson-name">11 - Volumes - Persisting Application Data</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson109.mp4" class="video-link" data-title="12 - ConfigMap & Secret Volume Types"><span class="lesson-name">12 - ConfigMap & Secret Volume Types</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson110.mp4" class="video-link" data-title="13 - StatefulSet - Deploying Stateful Applications"><span class="lesson-name">13 - StatefulSet - Deploying Stateful Applications</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson111.mp4" class="video-link" data-title="14 - Managed Kubernetes Services Explained"><span class="lesson-name">14 - Managed Kubernetes Services Explained</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson112.mp4" class="video-link" data-title="15 - Helm - Package Manager for Kubernetes"><span class="lesson-name">15 - Helm - Package Manager for Kubernetes</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson113.mp4" class="video-link" data-title="16 - Helm Demo - Managed K8s cluster"><span class="lesson-name">16 - Helm Demo - Managed K8s cluster</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson114.mp4" class="video-link" data-title="17 - Deploying Images in Kubernetes from private Docker repository"><span class="lesson-name">17 - Deploying Images in Kubernetes from private Docker repository</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson115.mp4" class="video-link" data-title="18 - Kubernetes Operators for Managing Complex Applications"><span class="lesson-name">18 - Kubernetes Operators for Managing Complex Applications</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson116.mp4" class="video-link" data-title="19 - Helm and Operator Demo"><span class="lesson-name">19 - Helm and Operator Demo</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Kubernetes on AWS (EKS)</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson117.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson118.mp4" class="video-link" data-title="1 - Container Services on AWS"><span class="lesson-name">1 - Container Services on AWS</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson119.mp4" class="video-link" data-title="2 - Create EKS cluster with AWS Management Console"><span class="lesson-name">2 - Create EKS cluster with AWS Management Console</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson120.mp4" class="video-link" data-title="3 - Configure Autoscaling in EKS cluster"><span class="lesson-name">3 - Configure Autoscaling in EKS cluster</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson121.mp4" class="video-link" data-title="4 - Create Fargate Profile for EKS Cluster"><span class="lesson-name">4 - Create Fargate Profile for EKS Cluster</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson122.mp4" class="video-link" data-title="5 - Create EKS cluster with eksctl command line tool"><span class="lesson-name">5 - Create EKS cluster with eksctl command line tool</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson123.mp4" class="video-link" data-title="6 - Deploy to EKS Cluster from Jenkins Pipeline"><span class="lesson-name">6 - Deploy to EKS Cluster from Jenkins Pipeline</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson124.mp4" class="video-link" data-title="7 - BONUS: Deploy to LKE Cluster from Jenkins Pipeline"><span class="lesson-name">7 - BONUS: Deploy to LKE Cluster from Jenkins Pipeline</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson125.mp4" class="video-link" data-title="8 - Jenkins Credentials Note on Best Practices"><span class="lesson-name">8 - Jenkins Credentials Note on Best Practices</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson126.mp4" class="video-link" data-title="9 - Complete CI/CD Pipeline with EKS and DockerHub"><span class="lesson-name">9 - Complete CI/CD Pipeline with EKS and DockerHub</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson127.mp4" class="video-link" data-title="10 - Complete CI/CD Pipeline with EKS and ECR"><span class="lesson-name">10 - Complete CI/CD Pipeline with EKS and ECR</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Terraform</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson128.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson129.mp4" class="video-link" data-title="1 - Introduction to Terraform"><span class="lesson-name">1 - Introduction to Terraform</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson130.mp4" class="video-link" data-title="2 - Install Terraform & Setup Terraform Project"><span class="lesson-name">2 - Install Terraform & Setup Terraform Project</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson131.mp4" class="video-link" data-title="3 - Providers in Terraform"><span class="lesson-name">3 - Providers in Terraform</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson132.mp4" class="video-link" data-title="4 - Resources & Data Sources"><span class="lesson-name">4 - Resources & Data Sources</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson133.mp4" class="video-link" data-title="5 - Change & Destroy Terraform Resources"><span class="lesson-name">5 - Change & Destroy Terraform Resources</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson134.mp4" class="video-link" data-title="6 - Terraform commands"><span class="lesson-name">6 - Terraform commands</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson135.mp4" class="video-link" data-title="7 - Terraform State"><span class="lesson-name">7 - Terraform State</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson136.mp4" class="video-link" data-title="8 - Output Values"><span class="lesson-name">8 - Output Values</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson137.mp4" class="video-link" data-title="9 - Variables in Terraform"><span class="lesson-name">9 - Variables in Terraform</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson138.mp4" class="video-link" data-title="10 - Environment Variables in Terraform"><span class="lesson-name">10 - Environment Variables in Terraform</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson139.mp4" class="video-link" data-title="11 - Create Git Repository for local Terraform Project"><span class="lesson-name">11 - Create Git Repository for local Terraform Project</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson140.mp4" class="video-link" data-title="12 - Automate Provisioning EC2 with Terraform - Part 1"><span class="lesson-name">12 - Automate Provisioning EC2 with Terraform - Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson141.mp4" class="video-link" data-title="13 - Automate Provisioning EC2 with Terraform - Part 2"><span class="lesson-name">13 - Automate Provisioning EC2 with Terraform - Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson142.mp4" class="video-link" data-title="14 - Automate Provisioning EC2 with Terraform - Part 3"><span class="lesson-name">14 - Automate Provisioning EC2 with Terraform - Part 3</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson143.mp4" class="video-link" data-title="15 - Provisioners in Terraform"><span class="lesson-name">15 - Provisioners in Terraform</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson144.mp4" class="video-link" data-title="16 - Modules in Terraform - Part 1"><span class="lesson-name">16 - Modules in Terraform - Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson145.mp4" class="video-link" data-title="17 - Modules in Terraform - Part 2"><span class="lesson-name">17 - Modules in Terraform - Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson146.mp4" class="video-link" data-title="18 - Modules in Terraform - Part 3"><span class="lesson-name">18 - Modules in Terraform - Part 3</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson147.mp4" class="video-link" data-title="19 - Automate Provisioning EKS cluster with Terraform - Part 1"><span class="lesson-name">19 - Automate Provisioning EKS cluster with Terraform - Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson148.mp4" class="video-link" data-title="20 - Automate Provisioning EKS cluster with Terraform - Part 2"><span class="lesson-name">20 - Automate Provisioning EKS cluster with Terraform - Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson149.mp4" class="video-link" data-title="21 - Automate Provisioning EKS cluster with Terraform - Part 3"><span class="lesson-name">21 - Automate Provisioning EKS cluster with Terraform - Part 3</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson150.mp4" class="video-link" data-title="22 - Complete CI/CD with Terraform - Part 1"><span class="lesson-name">22 - Complete CI/CD with Terraform - Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson151.mp4" class="video-link" data-title="23 - Complete CI/CD with Terraform - Part 2"><span class="lesson-name">23 - Complete CI/CD with Terraform - Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson152.mp4" class="video-link" data-title="24 - Complete CI/CD with Terraform - Part 3"><span class="lesson-name">24 - Complete CI/CD with Terraform - Part 3</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson153.mp4" class="video-link" data-title="25 - Remote State in Terraform"><span class="lesson-name">25 - Remote State in Terraform</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Python Programming</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson154.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson155.mp4" class="video-link" data-title="1 - Introduction to Python"><span class="lesson-name">1 - Introduction to Python</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson156.mp4" class="video-link" data-title="2 - Installation and Local Setup"><span class="lesson-name">2 - Installation and Local Setup</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson157.mp4" class="video-link" data-title="3 - Our first Python Program"><span class="lesson-name">3 - Our first Python Program</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson158.mp4" class="video-link" data-title="4 - Python IDE vs Simple File Editor"><span class="lesson-name">4 - Python IDE vs Simple File Editor</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson159.mp4" class="video-link" data-title="5 - Strings and Number Data Types"><span class="lesson-name">5 - Strings and Number Data Types</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson160.mp4" class="video-link" data-title="6 - Variables"><span class="lesson-name">6 - Variables</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson161.mp4" class="video-link" data-title="7 - Functions"><span class="lesson-name">7 - Functions</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson162.mp4" class="video-link" data-title="8 - Accepting User Input"><span class="lesson-name">8 - Accepting User Input</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson163.mp4" class="video-link" data-title="9 - Conditionals (if / else) and Boolean Data Type"><span class="lesson-name">9 - Conditionals (if / else) and Boolean Data Type</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson164.mp4" class="video-link" data-title="10 - Error Handling with Try-Except"><span class="lesson-name">10 - Error Handling with Try-Except</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson165.mp4" class="video-link" data-title="11 - While Loops"><span class="lesson-name">11 - While Loops</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson166.mp4" class="video-link" data-title="12 - Lists and For Loops"><span class="lesson-name">12 - Lists and For Loops</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson167.mp4" class="video-link" data-title="13 - Comments"><span class="lesson-name">13 - Comments</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson168.mp4" class="video-link" data-title="14 - Sets"><span class="lesson-name">14 - Sets</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson169.mp4" class="video-link" data-title="15 - Built-In Functions"><span class="lesson-name">15 - Built-In Functions</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson170.mp4" class="video-link" data-title="16 - Dictionary Data Type"><span class="lesson-name">16 - Dictionary Data Type</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson171.mp4" class="video-link" data-title="17 - Modules"><span class="lesson-name">17 - Modules</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson172.mp4" class="video-link" data-title="18 - Project: Countdown App"><span class="lesson-name">18 - Project: Countdown App</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson173.mp4" class="video-link" data-title="19 - Packages, PyPI and pip"><span class="lesson-name">19 - Packages, PyPI and pip</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson174.mp4" class="video-link" data-title="20 - Project: Automation with Python (Spreadsheet)"><span class="lesson-name">20 - Project: Automation with Python (Spreadsheet)</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson175.mp4" class="video-link" data-title="21 - OOP: Classes and Objects"><span class="lesson-name">21 - OOP: Classes and Objects</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson176.mp4" class="video-link" data-title="22 - Project: API Request to GitLab"><span class="lesson-name">22 - Project: API Request to GitLab</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Python Automation (Boto3)</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson177.mp4" class="video-link" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson178.mp4" class="video-link" data-title="1 - Introduction to Boto Library (AWS SDK for Python)"><span class="lesson-name">1 - Introduction to Boto Library (AWS SDK for Python)</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson179.mp4" class="video-link" data-title="2 - Install Boto3 and connect to AWS"><span class="lesson-name">2 - Install Boto3 and connect to AWS</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson180.mp4" class="video-link" data-title="3 - Getting familiar with Boto"><span class="lesson-name">3 - Getting familiar with Boto</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson181.mp4" class="video-link" data-title="4 - Terraform vs Python - understand when to use which tool"><span class="lesson-name">4 - Terraform vs Python - understand when to use which tool</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson182.mp4" class="video-link" data-title="5 - Health Check: EC2 Status Checks"><span class="lesson-name">5 - Health Check: EC2 Status Checks</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson183.mp4" class="video-link" data-title="6 - Write a Scheduled Task in Python"><span class="lesson-name">6 - Write a Scheduled Task in Python</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson184.mp4" class="video-link" data-title="7 - Configure Server: Add Environment Tags to EC2 Instances"><span class="lesson-name">7 - Configure Server: Add Environment Tags to EC2 Instances</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson185.mp4" class="video-link" data-title="8 - EKS cluster information"><span class="lesson-name">8 - EKS cluster information</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson186.mp4" class="video-link" data-title="9 - Backup EC2 Volumes: Automate creating Snapshots"><span class="lesson-name">9 - Backup EC2 Volumes: Automate creating Snapshots</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson187.mp4" class="video-link" data-title="10 - Automate cleanup of old Snapshots"><span class="lesson-name">10 - Automate cleanup of old Snapshots</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson188.mp4" class="video-link" data-title="11 - Automate restoring EC2 Volume from the Backup"><span class="lesson-name">11 - Automate restoring EC2 Volume from the Backup</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson189.mp4" class="video-link" data-title="12 - Handling Errors"><span class="lesson-name">12 - Handling Errors</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson190.mp4" class="video-link" data-title="13 - Website Monitoring 1: Scheduled Task to Monitor Application Health"><span class="lesson-name">13 - Website Monitoring 1: Scheduled Task to Monitor Application Health</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson191.mp4" class="video-link" data-title="14 - Website Monitoring 2: Automated Email Notification"><span class="lesson-name">14 - Website Monitoring 2: Automated Email Notification</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson192.mp4" class="video-link" data-title="15 - Website Monitoring 3: Restart Application and Reboot Server"><span class="lesson-name">15 - Website Monitoring 3: Restart Application and Reboot Server</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+
+    <div class="module">
+        <div class="module-header">Ansible</div>
+        <ul>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson193.mp4" class="video-link" data-title="0 - Module Intro + Checklist"><span class="lesson-name">0 - Module Intro + Checklist</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson194.mp4" class="video-link" data-title="1 - Introduction to Ansible"><span class="lesson-name">1 - Introduction to Ansible</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson195.mp4" class="video-link" data-title="2 - Install Ansible"><span class="lesson-name">2 - Install Ansible</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson196.mp4" class="video-link" data-title="3 - Setup Managed Server to Configure with Ansible"><span class="lesson-name">3 - Setup Managed Server to Configure with Ansible</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson197.mp4" class="video-link" data-title="4 - Ansible Inventory and Ansible ad-hoc commands"><span class="lesson-name">4 - Ansible Inventory and Ansible ad-hoc commands</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson198.mp4" class="video-link" data-title="5 - Configure AWS EC2 server with Ansible"><span class="lesson-name">5 - Configure AWS EC2 server with Ansible</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson199.mp4" class="video-link" data-title="6 - Managing Host Key Checking and SSH keys"><span class="lesson-name">6 - Managing Host Key Checking and SSH keys</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson200.mp4" class="video-link" data-title="7 - Introduction to Playbooks"><span class="lesson-name">7 - Introduction to Playbooks</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson201.mp4" class="video-link" data-title="8 - Ansible Modules"><span class="lesson-name">8 - Ansible Modules</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson202.mp4" class="video-link" data-title="9 - Collections in Ansible"><span class="lesson-name">9 - Collections in Ansible</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson203.mp4" class="video-link" data-title="10 - Project: Deploy Nodejs application - Part 1"><span class="lesson-name">10 - Project: Deploy Nodejs application - Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson204.mp4" class="video-link" data-title="11 - Project: Deploy Nodejs application - Part 2"><span class="lesson-name">11 - Project: Deploy Nodejs application - Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson205.mp4" class="video-link" data-title="12 - Project: Deploy Nodejs application - Part 3"><span class="lesson-name">12 - Project: Deploy Nodejs application - Part 3</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson206.mp4" class="video-link" data-title="13 - Ansible Variables - make your Playbook customizable"><span class="lesson-name">13 - Ansible Variables - make your Playbook customizable</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson207.mp4" class="video-link" data-title="14 - Project Deploy Nexus - Part 1"><span class="lesson-name">14 - Project Deploy Nexus - Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson208.mp4" class="video-link" data-title="15 - Project Deploy Nexus - Part 2"><span class="lesson-name">15 - Project Deploy Nexus - Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson209.mp4" class="video-link" data-title="16 - Ansible Configuration - Default Inventory File"><span class="lesson-name">16 - Ansible Configuration - Default Inventory File</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson210.mp4" class="video-link" data-title="17 - Project: Run Docker applications - Part 1"><span class="lesson-name">17 - Project: Run Docker applications - Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson211.mp4" class="video-link" data-title="18 - Project: Run Docker applications - Part 2"><span class="lesson-name">18 - Project: Run Docker applications - Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson212.mp4" class="video-link" data-title="19 - Project: Terraform & Ansible"><span class="lesson-name">19 - Project: Terraform & Ansible</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson213.mp4" class="video-link" data-title="20 - Dynamic Inventory for EC2 Servers"><span class="lesson-name">20 - Dynamic Inventory for EC2 Servers</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson214.mp4" class="video-link" data-title="21 - Project: Deploying Application in K8s"><span class="lesson-name">21 - Project: Deploying Application in K8s</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson215.mp4" class="video-link" data-title="22 - Project: Run Ansible from Jenkins Pipeline - Part 1"><span class="lesson-name">22 - Project: Run Ansible from Jenkins Pipeline - Part 1</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson216.mp4" class="video-link" data-title="23 - Project: Run Ansible from Jenkins Pipeline - Part 2"><span class="lesson-name">23 - Project: Run Ansible from Jenkins Pipeline - Part 2</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson217.mp4" class="video-link" data-title="24 - Project: Run Ansible from Jenkins Pipeline - Part 3"><span class="lesson-name">24 - Project: Run Ansible from Jenkins Pipeline - Part 3</span> <span class="file-tag">&#9654;</span></a></li>
+            <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson218.mp4" class="video-link" data-title="25 - Ansible Roles - Make your Ansible content more reusable and modular"><span class="lesson-name">25 - Ansible Roles - Make your Ansible content more reusable and modular</span> <span class="file-tag">&#9654;</span></a></li>
+        </ul>
+    </div>
+    </div>
+    
+    <div class="content">
+        <header>
+            <h1>DevOps Bootcamp</h1>
+        </header>
+        
+        <div class="video-container">
+            <video id="mainPlayer" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="player-controls">
+                <button id="prevBtn" class="nav-btn prev-btn">&#9664; Previous</button>
+                <div id="nowPlayingTitle" class="now-playing-text">Select a lesson to start watching</div>
+                <button id="nextBtn" class="nav-btn next-btn">Next &#9654;</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const player = document.getElementById('mainPlayer');
+        const nowPlayingText = document.getElementById('nowPlayingTitle');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const sidebar = document.getElementById('sidebar');
+        
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('hidden');
+            toggleBtn.classList.toggle('collapsed');
+            toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '&gt;' : '&lt;';
+        });
+        
+        // Module collapse/expand
+        document.querySelectorAll('.module-header').forEach(header => {
+            header.addEventListener('click', function() {
+                this.parentElement.classList.toggle('collapsed');
+            });
+        });
+        
+        const allLinks = Array.from(document.querySelectorAll('.video-link'));
+        
+        let currentLinkIndex = -1;
+
+        // Function to load a video by index
+        function loadVideo(index) {
+            if (index < 0 || index >= allLinks.length) return;
+
+            const link = allLinks[index];
+            currentLinkIndex = index;
+
+            // Remove 'active' class from all links
+            allLinks.forEach(l => l.classList.remove('active'));
+            
+            // Add 'active' class to the current link
+            link.classList.add('active');
+            
+            // Update play button text
+            const playTag = link.querySelector('.file-tag');
+            document.querySelectorAll('.file-tag').forEach(tag => tag.innerHTML = '&#9654;');
+            playTag.innerHTML = '&#9208;';
+            
+            // Update player
+            player.src = link.getAttribute('href');
+            const title = link.getAttribute('data-title');
+            nowPlayingText.textContent = "Now Playing: " + title;
+            player.play();
+
+            // Setup Buttons State
+            updateButtonStates();
+        }
+
+        // Function to update Next/Prev Button visibility
+        function updateButtonStates() {
+            if (currentLinkIndex < allLinks.length - 1) {
+                nextBtn.disabled = false;
+            } else {
+                nextBtn.disabled = true;
+            }
+
+            if (currentLinkIndex > 0) {
+                prevBtn.disabled = false;
+            } else {
+                prevBtn.disabled = true;
+            }
+        }
+
+        // 1. CLICK Event for all links
+        allLinks.forEach((link, index) => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadVideo(index);
+            });
+        });
+
+        // 2. VIDEO ENDED Event (Auto-play next)
+        player.addEventListener('ended', function() {
+            if (currentLinkIndex < allLinks.length - 1) {
+                loadVideo(currentLinkIndex + 1);
+            }
+        });
+
+        // 3. NEXT BUTTON Click Event
+        nextBtn.addEventListener('click', function() {
+            if (currentLinkIndex < allLinks.length - 1) {
+                loadVideo(currentLinkIndex + 1);
+            }
+        });
+
+        // 4. PREV BUTTON Click Event (New)
+        prevBtn.addEventListener('click', function() {
+            if (currentLinkIndex > 0) {
+                loadVideo(currentLinkIndex - 1);
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
