@@ -67,8 +67,8 @@ cd devops-bootcamp
 ```
 
 2. Open the HTML file:
-   - Simply double-click `devopsbootcamp.html` in your file explorer, or
-   - Right-click `devopsbootcamp.html` → Open with → Your preferred browser
+   - Simply double-click `index.html` in your file explorer, or
+   - Right-click `index.html` → Open with → Your preferred browser
 
 ### Usage
 
@@ -86,7 +86,7 @@ cd devops-bootcamp
 
 ```
 devops-bootcamp/
-├── devopsbootcamp.html    # Main HTML file with embedded CSS and JavaScript
+├── index.html             # Main HTML file with embedded CSS and JavaScript
 └── README.md              # This file
 ```
 
