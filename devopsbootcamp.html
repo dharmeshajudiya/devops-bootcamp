@@ -246,9 +246,13 @@
             font-size: 1.2rem;
             font-weight: 600;
         }
-        .settings-btn {
+        .header-buttons {
             position: absolute;
             right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .settings-btn, .pip-btn, .loop-btn {
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -259,10 +263,18 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
         }
-        .settings-btn:hover {
+        .settings-btn:hover, .pip-btn:hover, .loop-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        }
+        .pip-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .loop-btn.active {
+            background: rgba(72, 187, 120, 0.4);
+            border-color: rgba(72, 187, 120, 0.6);
         }
         
         /* Settings Modal */
@@ -554,6 +566,33 @@
             transition: all 0.3s ease;
             box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
         }
+        .module-title {
+            flex: 1;
+        }
+        .module-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 10px;
+        }
+        .module-progress-bar {
+            width: 60px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .module-progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .module-progress-text {
+            font-size: 0.85rem;
+            min-width: 35px;
+            text-align: right;
+        }
         .module-header:hover {
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
@@ -687,6 +726,81 @@
         a.completed .completed-check {
             display: inline;
         }
+        
+        /* Keyboard Shortcuts Help Modal */
+        .shortcuts-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+        .shortcuts-modal.active {
+            display: flex;
+        }
+        .shortcuts-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        body.dark-mode .shortcuts-content {
+            background: #1a202c;
+            color: #e2e8f0;
+        }
+        .shortcuts-content h2 {
+            margin: 0 0 20px 0;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 15px 20px;
+            margin-bottom: 20px;
+        }
+        .shortcut-key {
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: bold;
+            text-align: center;
+            min-width: 80px;
+        }
+        .shortcut-desc {
+            display: flex;
+            align-items: center;
+        }
+        .close-shortcuts {
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .close-shortcuts:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -702,7 +816,13 @@
         <div id="noResults" class="no-results" style="display:none;">No lessons found</div>
 
     <div class="module collapsed">
-        <div class="module-header">Bootcamp Overview</div>
+        <div class="module-header">
+            <span class="module-title">Bootcamp Overview</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson1.mp4" class="video-link" data-title="1 - Bootcamp Overview" data-video-id="lesson1"><span class="lesson-name"><span class="completed-check">✓</span>1 - Bootcamp Overview</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson2.mp4" class="video-link" data-title="2 - Introduction to DevOps" data-video-id="lesson2"><span class="lesson-name"><span class="completed-check">✓</span>2 - Introduction to DevOps</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -710,7 +830,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Version Control (Git)</div>
+        <div class="module-header">
+            <span class="module-title">Version Control (Git)</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson3.mp4" class="video-link" data-video-id="lesson3" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson4.mp4" class="video-link" data-video-id="lesson4" data-title="1 - Introduction to Version Control and Git"><span class="lesson-name">1 - Introduction to Version Control and Git</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -733,7 +859,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Databases</div>
+        <div class="module-header">
+            <span class="module-title">Databases</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson20.mp4" class="video-link" data-video-id="lesson20" data-title="1 - Databases in development process"><span class="lesson-name">1 - Databases in development process</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson21.mp4" class="video-link" data-video-id="lesson21" data-title="2 - Database Types"><span class="lesson-name">2 - Database Types</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -741,7 +873,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Build Tools</div>
+        <div class="module-header">
+            <span class="module-title">Build Tools</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson22.mp4" class="video-link" data-video-id="lesson22" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson23.mp4" class="video-link" data-video-id="lesson23" data-title="1 - Introduction to Build Tools"><span class="lesson-name">1 - Introduction to Build Tools</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -758,7 +896,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Cloud & IaaS</div>
+        <div class="module-header">
+            <span class="module-title">Cloud & IaaS</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson33.mp4" class="video-link" data-video-id="lesson33" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson34.mp4" class="video-link" data-video-id="lesson34" data-title="1 - Intro to Cloud & IaaS"><span class="lesson-name">1 - Intro to Cloud & IaaS</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -769,7 +913,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Artifact Repository (Nexus)</div>
+        <div class="module-header">
+            <span class="module-title">Artifact Repository (Nexus)</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson38.mp4" class="video-link" data-video-id="lesson38" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson39.mp4" class="video-link" data-video-id="lesson39" data-title="1 - Intro to Artifact Repository Manager"><span class="lesson-name">1 - Intro to Artifact Repository Manager</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -785,7 +935,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Docker & Containers</div>
+        <div class="module-header">
+            <span class="module-title">Docker & Containers</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson48.mp4" class="video-link" data-video-id="lesson48" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson49.mp4" class="video-link" data-video-id="lesson49" data-title="1 - What is a Container"><span class="lesson-name">1 - What is a Container</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -808,7 +964,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Build Automation (Jenkins)</div>
+        <div class="module-header">
+            <span class="module-title">Build Automation (Jenkins)</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson65.mp4" class="video-link" data-video-id="lesson65" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson66.mp4" class="video-link" data-video-id="lesson66" data-title="1 - Intro to Build Automation"><span class="lesson-name">1 - Intro to Build Automation</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -832,7 +994,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">AWS Services</div>
+        <div class="module-header">
+            <span class="module-title">AWS Services</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson83.mp4" class="video-link" data-video-id="lesson83" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson84.mp4" class="video-link" data-video-id="lesson84" data-title="1 - Introduction to AWS"><span class="lesson-name">1 - Introduction to AWS</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -852,7 +1020,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Kubernetes (K8s)</div>
+        <div class="module-header">
+            <span class="module-title">Kubernetes (K8s)</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson97.mp4" class="video-link" data-video-id="lesson97" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson98.mp4" class="video-link" data-video-id="lesson98" data-title="1 - Intro to Kubernetes"><span class="lesson-name">1 - Intro to Kubernetes</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -878,7 +1052,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Kubernetes on AWS (EKS)</div>
+        <div class="module-header">
+            <span class="module-title">Kubernetes on AWS (EKS)</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson117.mp4" class="video-link" data-video-id="lesson117" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson118.mp4" class="video-link" data-video-id="lesson118" data-title="1 - Container Services on AWS"><span class="lesson-name">1 - Container Services on AWS</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -895,7 +1075,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Terraform</div>
+        <div class="module-header">
+            <span class="module-title">Terraform</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson128.mp4" class="video-link" data-video-id="lesson128" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson129.mp4" class="video-link" data-video-id="lesson129" data-title="1 - Introduction to Terraform"><span class="lesson-name">1 - Introduction to Terraform</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -927,7 +1113,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Python Programming</div>
+        <div class="module-header">
+            <span class="module-title">Python Programming</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson154.mp4" class="video-link" data-video-id="lesson154" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson155.mp4" class="video-link" data-video-id="lesson155" data-title="1 - Introduction to Python"><span class="lesson-name">1 - Introduction to Python</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -956,7 +1148,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Python Automation (Boto3)</div>
+        <div class="module-header">
+            <span class="module-title">Python Automation (Boto3)</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson177.mp4" class="video-link" data-video-id="lesson177" data-title="0 - Module Intro"><span class="lesson-name">0 - Module Intro</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson178.mp4" class="video-link" data-video-id="lesson178" data-title="1 - Introduction to Boto Library (AWS SDK for Python)"><span class="lesson-name">1 - Introduction to Boto Library (AWS SDK for Python)</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -978,7 +1176,13 @@
     </div>
 
     <div class="module collapsed">
-        <div class="module-header">Ansible</div>
+        <div class="module-header">
+            <span class="module-title">Ansible</span>
+            <div class="module-progress">
+                <div class="module-progress-bar"><div class="module-progress-fill" style="width: 0%;"></div></div>
+                <span class="module-progress-text">0%</span>
+            </div>
+        </div>
         <ul>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson193.mp4" class="video-link" data-video-id="lesson193" data-title="0 - Module Intro + Checklist"><span class="lesson-name">0 - Module Intro + Checklist</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
             <li><a href="https://archive.org/download/dev-ops-bootcamp/%5BTutsNode.com%5D%20-%20DevOps%20Bootcamp/lesson194.mp4" class="video-link" data-video-id="lesson194" data-title="1 - Introduction to Ansible"><span class="lesson-name">1 - Introduction to Ansible</span> <span class="file-tag">&#9654;</span><div class="progress-bar" style="width: 0%;"></div></a></li>
@@ -1013,7 +1217,11 @@
     <div class="content">
         <header>
             <h1>DevOps Bootcamp</h1>
-            <button id="settingsBtn" class="settings-btn" title="Settings">⚙️</button>
+            <div class="header-buttons">
+                <button id="loopBtn" class="loop-btn" title="Loop Current Video (L)">🔁</button>
+                <button id="pipBtn" class="pip-btn" title="Picture-in-Picture (P)">📺</button>
+                <button id="settingsBtn" class="settings-btn" title="Settings (S)">⚙️</button>
+            </div>
         </header>
         
         <div class="video-container" id="videoContainer">
@@ -1076,7 +1284,54 @@
             <label>Clear All Storage</label>
             <button id="clearStorage" class="reset-btn">Clear Storage</button>
         </div>
+        <div class="settings-option">
+            <label>Skip Intro (seconds)</label>
+            <input type="number" id="skipIntro" min="0" max="60" value="0" style="width: 60px; padding: 6px; border-radius: 6px; border: 2px solid rgba(102, 126, 234, 0.3);">
+        </div>
+        <div class="settings-option">
+            <label>Skip Outro (seconds)</label>
+            <input type="number" id="skipOutro" min="0" max="60" value="0" style="width: 60px; padding: 6px; border-radius: 6px; border: 2px solid rgba(102, 126, 234, 0.3);">
+        </div>
         <button id="closeSettings" class="close-settings">Close</button>
+    </div>
+</div>
+
+<!-- Keyboard Shortcuts Modal -->
+<div id="shortcutsModal" class="shortcuts-modal">
+    <div class="shortcuts-content">
+        <h2>⌨️ Keyboard Shortcuts</h2>
+        <div class="shortcuts-grid">
+            <div class="shortcut-key">Space</div>
+            <div class="shortcut-desc">Play / Pause</div>
+            
+            <div class="shortcut-key">← →</div>
+            <div class="shortcut-desc">Rewind / Forward 10s</div>
+            
+            <div class="shortcut-key">↑ ↓</div>
+            <div class="shortcut-desc">Previous / Next Lesson</div>
+            
+            <div class="shortcut-key">F</div>
+            <div class="shortcut-desc">Toggle Fullscreen</div>
+            
+            <div class="shortcut-key">M</div>
+            <div class="shortcut-desc">Mute / Unmute</div>
+            
+            <div class="shortcut-key">P</div>
+            <div class="shortcut-desc">Picture-in-Picture</div>
+            
+            <div class="shortcut-key">L</div>
+            <div class="shortcut-desc">Loop Current Video</div>
+            
+            <div class="shortcut-key">S</div>
+            <div class="shortcut-desc">Open Settings</div>
+            
+            <div class="shortcut-key">?</div>
+            <div class="shortcut-desc">Show Shortcuts (this)</div>
+            
+            <div class="shortcut-key">Esc</div>
+            <div class="shortcut-desc">Close Modals</div>
+        </div>
+        <button id="closeShortcuts" class="close-shortcuts">Close</button>
     </div>
 </div>
 
@@ -1098,6 +1353,12 @@
         const toggleDarkMode = document.getElementById('toggleDarkMode');
         const resetProgress = document.getElementById('resetProgress');
         const clearStorage = document.getElementById('clearStorage');
+        const pipBtn = document.getElementById('pipBtn');
+        const loopBtn = document.getElementById('loopBtn');
+        const skipIntro = document.getElementById('skipIntro');
+        const skipOutro = document.getElementById('skipOutro');
+        const shortcutsModal = document.getElementById('shortcutsModal');
+        const closeShortcuts = document.getElementById('closeShortcuts');
         const themeColors = document.querySelectorAll('.theme-color');
         
         // Color themes - Subtle and eye-friendly
@@ -1112,6 +1373,35 @@
         // Loading spinner
         player.addEventListener('waiting', () => videoContainer.classList.add('loading'));
         player.addEventListener('canplay', () => videoContainer.classList.remove('loading'));
+        
+        // Picture-in-Picture
+        if ('pictureInPictureEnabled' in document) {
+            pipBtn.addEventListener('click', async () => {
+                try {
+                    if (document.pictureInPictureElement) {
+                        await document.exitPictureInPicture();
+                    } else {
+                        await player.requestPictureInPicture();
+                    }
+                } catch (err) {
+                    console.error('PiP error:', err);
+                }
+            });
+        } else {
+            pipBtn.disabled = true;
+            pipBtn.title = 'Picture-in-Picture not supported';
+        }
+        
+        // Loop current video
+        let isLooping = localStorage.getItem('loopVideo') === 'true';
+        if (isLooping) loopBtn.classList.add('active');
+        
+        loopBtn.addEventListener('click', () => {
+            isLooping = !isLooping;
+            loopBtn.classList.toggle('active');
+            player.loop = isLooping;
+            localStorage.setItem('loopVideo', isLooping);
+        });
         
         // Smooth scroll to active lesson
         function scrollToActive() {
@@ -1164,11 +1454,25 @@
         themeColors.forEach(tc => tc.classList.remove('active'));
         document.querySelector(`[data-theme="${savedTheme}"]`).classList.add('active');
         
+        // Load skip settings
+        skipIntro.value = localStorage.getItem('skipIntro') || '0';
+        skipOutro.value = localStorage.getItem('skipOutro') || '0';
+        
+        // Save skip settings
+        skipIntro.addEventListener('change', () => localStorage.setItem('skipIntro', skipIntro.value));
+        skipOutro.addEventListener('change', () => localStorage.setItem('skipOutro', skipOutro.value));
+        
         // Settings Modal
         settingsBtn.addEventListener('click', () => settingsModal.classList.add('active'));
         closeSettings.addEventListener('click', () => settingsModal.classList.remove('active'));
         settingsModal.addEventListener('click', (e) => {
             if (e.target === settingsModal) settingsModal.classList.remove('active');
+        });
+        
+        // Shortcuts Modal
+        closeShortcuts.addEventListener('click', () => shortcutsModal.classList.remove('active'));
+        shortcutsModal.addEventListener('click', (e) => {
+            if (e.target === shortcutsModal) shortcutsModal.classList.remove('active');
         });
         
         toggleDarkMode.addEventListener('click', function() {
@@ -1277,6 +1581,26 @@
             const percentage = Math.round((completedCount / totalCount) * 100);
             document.getElementById('courseProgressFill').style.width = percentage + '%';
             document.getElementById('courseProgressPercent').textContent = percentage + '%';
+            updateModuleProgress();
+        }
+        
+        // Update module progress indicators
+        function updateModuleProgress() {
+            document.querySelectorAll('.module').forEach(module => {
+                const links = module.querySelectorAll('.video-link');
+                const completed = Array.from(links).filter(l => l.classList.contains('completed')).length;
+                const total = links.length;
+                const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+                
+                const progressFill = module.querySelector('.module-progress-fill');
+                const progressText = module.querySelector('.module-progress-text');
+                if (progressFill) {
+                    progressFill.style.width = percent + '%';
+                }
+                if (progressText) {
+                    progressText.textContent = percent + '%';
+                }
+            });
         }
 
         // Load completed status and progress bars on page load
@@ -1296,6 +1620,7 @@
             }
         });
         updateCourseProgress();
+        updateModuleProgress();
 
         // Update progress bar function
         function updateProgressBar(link, percentage) {
@@ -1328,11 +1653,18 @@
             const title = link.getAttribute('data-title');
             nowPlayingText.textContent = "Now Playing: " + title;
             
+            // Apply loop setting
+            player.loop = isLooping;
+            
             // Resume from saved position
             const videoId = link.getAttribute('data-video-id');
             const progress = loadProgress(videoId);
+            const introSkip = parseInt(skipIntro.value) || 0;
+            
             if (progress && !progress.completed && progress.currentTime > 5) {
                 player.currentTime = progress.currentTime;
+            } else if (introSkip > 0) {
+                player.currentTime = introSkip;
             }
             
             player.play();
@@ -1372,7 +1704,7 @@
 
         // 2. VIDEO ENDED Event (Auto-play next)
         player.addEventListener('ended', function() {
-            if (currentLinkIndex < allLinks.length - 1) {
+            if (!isLooping && currentLinkIndex < allLinks.length - 1) {
                 loadVideo(currentLinkIndex + 1);
             }
         });
@@ -1407,6 +1739,14 @@
                     markCompleted(link);
                     updateProgressBar(link, 100);
                     updateCourseProgress();
+                }
+                
+                // Auto-skip outro
+                const outroSkip = parseInt(skipOutro.value) || 0;
+                if (outroSkip > 0 && player.duration - player.currentTime <= outroSkip && player.duration - player.currentTime > 0.5) {
+                    if (currentLinkIndex < allLinks.length - 1) {
+                        loadVideo(currentLinkIndex + 1);
+                    }
                 }
             }
         });
@@ -1459,6 +1799,23 @@
                     break;
                 case 'Escape': // Escape - Close settings
                     settingsModal.classList.remove('active');
+                    shortcutsModal.classList.remove('active');
+                    break;
+                case 'p': // P - Picture-in-Picture
+                case 'P':
+                    e.preventDefault();
+                    if (document.pictureInPictureEnabled) {
+                        pipBtn.click();
+                    }
+                    break;
+                case 'l': // L - Loop
+                case 'L':
+                    e.preventDefault();
+                    loopBtn.click();
+                    break;
+                case '?': // ? - Show shortcuts
+                    e.preventDefault();
+                    shortcutsModal.classList.add('active');
                     break;
             }
         });
