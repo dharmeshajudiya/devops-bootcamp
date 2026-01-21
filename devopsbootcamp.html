@@ -69,6 +69,116 @@
             margin-left: -350px;
         }
         
+        /* Search Box */
+        .search-box {
+            padding: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            background: #ffffff;
+            z-index: 10;
+        }
+        body.dark-mode .search-box {
+            background: #1f2937;
+            border-bottom-color: #374151;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+        body.dark-mode .search-box input {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f3f4f6;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: #9ca3af;
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: white;
+            display: none;
+        }
+        .video-container.loading .loading {
+            display: block;
+        }
+        
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: 50vh;
+                border-right: none;
+                border-bottom: 2px solid #e5e7eb;
+            }
+            body.dark-mode .sidebar {
+                border-bottom-color: #374151;
+            }
+            .sidebar.hidden {
+                margin-left: 0;
+                height: 0;
+                overflow: hidden;
+            }
+            .toggle-btn {
+                left: 10px;
+                top: 10px;
+            }
+            .toggle-btn.collapsed {
+                left: 10px;
+            }
+            .content {
+                height: 50vh;
+            }
+            .sidebar.hidden + .content {
+                height: 100vh;
+            }
+            header {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 1.2rem;
+            }
+            .dark-mode-toggle {
+                padding: 6px 12px;
+                font-size: 1rem;
+            }
+            .player-controls {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .now-playing-text {
+                width: 100%;
+                order: -1;
+            }
+            .speed-control {
+                margin-left: 0;
+            }
+        }
+        
         /* Right Content Area */
         .content {
             flex: 1;
@@ -333,6 +443,10 @@
 
 <div class="layout">
     <div class="sidebar" id="sidebar">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Search lessons..." aria-label="Search lessons">
+        </div>
+        <div id="noResults" class="no-results" style="display:none;">No lessons found</div>
 
     <div class="module">
         <div class="module-header">Bootcamp Overview</div>
@@ -649,17 +763,18 @@
             <button id="darkModeToggle" class="dark-mode-toggle" title="Toggle Dark Mode">🌙</button>
         </header>
         
-        <div class="video-container">
-            <video id="mainPlayer" controls>
+        <div class="video-container" id="videoContainer">
+            <div class="loading">⏳</div>
+            <video id="mainPlayer" controls aria-label="Video player">
                 <source src="" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
             <div class="player-controls">
-                <button id="prevBtn" class="nav-btn prev-btn">&#9664; Previous</button>
-                <div id="nowPlayingTitle" class="now-playing-text">Select a lesson to start watching</div>
+                <button id="prevBtn" class="nav-btn prev-btn" aria-label="Previous lesson">&#9664; Previous</button>
+                <div id="nowPlayingTitle" class="now-playing-text" role="status" aria-live="polite">Select a lesson to start watching</div>
                 <div class="speed-control">
-                    <label>Speed:</label>
-                    <select id="speedControl">
+                    <label for="speedControl">Speed:</label>
+                    <select id="speedControl" aria-label="Playback speed">
                         <option value="0.5">0.5x</option>
                         <option value="0.75">0.75x</option>
                         <option value="1" selected>1x</option>
@@ -669,7 +784,7 @@
                         <option value="2">2x</option>
                     </select>
                 </div>
-                <button id="nextBtn" class="nav-btn next-btn">Next &#9654;</button>
+                <button id="nextBtn" class="nav-btn next-btn" aria-label="Next lesson">Next &#9654;</button>
             </div>
         </div>
     </div>
@@ -685,6 +800,47 @@
         const sidebar = document.getElementById('sidebar');
         const speedControl = document.getElementById('speedControl');
         const darkModeToggle = document.getElementById('darkModeToggle');
+        const searchInput = document.getElementById('searchInput');
+        const noResults = document.getElementById('noResults');
+        const videoContainer = document.getElementById('videoContainer');
+        
+        // Loading spinner
+        player.addEventListener('waiting', () => videoContainer.classList.add('loading'));
+        player.addEventListener('canplay', () => videoContainer.classList.remove('loading'));
+        
+        // Smooth scroll to active lesson
+        function scrollToActive() {
+            const activeLink = document.querySelector('.video-link.active');
+            if (activeLink) {
+                activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const modules = document.querySelectorAll('.module');
+            let hasResults = false;
+            
+            modules.forEach(module => {
+                const links = module.querySelectorAll('.video-link');
+                let moduleHasMatch = false;
+                
+                links.forEach(link => {
+                    const title = link.getAttribute('data-title').toLowerCase();
+                    const matches = title.includes(query);
+                    link.parentElement.style.display = matches ? '' : 'none';
+                    if (matches) {
+                        moduleHasMatch = true;
+                        hasResults = true;
+                    }
+                });
+                
+                module.style.display = moduleHasMatch ? '' : 'none';
+            });
+            
+            noResults.style.display = hasResults || query === '' ? 'none' : 'block';
+        });
         
         // Dark mode
         const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -786,6 +942,9 @@
 
             // Apply saved playback speed
             player.playbackRate = parseFloat(speedControl.value);
+            
+            // Scroll to active lesson
+            setTimeout(scrollToActive, 300);
 
             // Setup Buttons State
             updateButtonStates();
