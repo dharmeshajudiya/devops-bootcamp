@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevOps Bootcamp Course</title>
-    <style>`r`n        :root {`r`n            --primary-start: #667eea;`r`n            --primary-end: #764ba2;`r`n        }
+    <style>`r`n        :root {`r`n            --primary-start: #64748b;`r`n            --primary-end: #475569;`r`n        }
         body {
             font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
@@ -21,31 +21,42 @@
         /* Toggle Button */
         .toggle-btn {
             position: fixed;
-            top: 10px;
+            top: 15px;
             left: 360px;
             z-index: 1001;
-            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-start);
+            border: 2px solid var(--primary-start);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        body.dark-mode .toggle-btn {
+            background: rgba(45, 55, 72, 0.95);
+            color: white;
+            border-color: var(--primary-start);
         }
         .toggle-btn:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            color: white;
+            border-color: transparent;
+            transform: translateX(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
         .toggle-btn.collapsed {
-            left: 10px;
+            left: 15px;
+        }
+        .toggle-btn.collapsed:hover {
+            transform: translateX(2px);
         }
         
         /* Layout Container */
@@ -1050,16 +1061,20 @@
         <div class="settings-option">
             <label>Color Theme</label>
             <div class="theme-colors">
-                <div class="theme-color active" data-theme="purple" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
-                <div class="theme-color" data-theme="blue" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
-                <div class="theme-color" data-theme="green" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
-                <div class="theme-color" data-theme="orange" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
-                <div class="theme-color" data-theme="red" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                <div class="theme-color active" data-theme="slate" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);"></div>
+                <div class="theme-color" data-theme="ocean" style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);"></div>
+                <div class="theme-color" data-theme="sage" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);"></div>
+                <div class="theme-color" data-theme="lavender" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);"></div>
+                <div class="theme-color" data-theme="rose" style="background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);"></div>
             </div>
         </div>
         <div class="settings-option">
             <label>Reset Course Progress</label>
             <button id="resetProgress" class="reset-btn">Reset All</button>
+        </div>
+        <div class="settings-option">
+            <label>Clear All Storage</label>
+            <button id="clearStorage" class="reset-btn">Clear Storage</button>
         </div>
         <button id="closeSettings" class="close-settings">Close</button>
     </div>
@@ -1082,15 +1097,16 @@
         const closeSettings = document.getElementById('closeSettings');
         const toggleDarkMode = document.getElementById('toggleDarkMode');
         const resetProgress = document.getElementById('resetProgress');
+        const clearStorage = document.getElementById('clearStorage');
         const themeColors = document.querySelectorAll('.theme-color');
         
-        // Color themes
+        // Color themes - Subtle and eye-friendly
         const themes = {
-            purple: { start: '#667eea', end: '#764ba2', darkStart: '#4c51bf', darkEnd: '#5a67d8' },
-            blue: { start: '#4facfe', end: '#00f2fe', darkStart: '#2563eb', darkEnd: '#0ea5e9' },
-            green: { start: '#43e97b', end: '#38f9d7', darkStart: '#10b981', darkEnd: '#14b8a6' },
-            orange: { start: '#fa709a', end: '#fee140', darkStart: '#f97316', darkEnd: '#fb923c' },
-            red: { start: '#f093fb', end: '#f5576c', darkStart: '#dc2626', darkEnd: '#e11d48' }
+            slate: { start: '#64748b', end: '#475569', darkStart: '#475569', darkEnd: '#334155' },
+            ocean: { start: '#0891b2', end: '#0e7490', darkStart: '#0e7490', darkEnd: '#155e75' },
+            sage: { start: '#059669', end: '#047857', darkStart: '#047857', darkEnd: '#065f46' },
+            lavender: { start: '#8b5cf6', end: '#7c3aed', darkStart: '#7c3aed', darkEnd: '#6d28d9' },
+            rose: { start: '#e11d48', end: '#be123c', darkStart: '#be123c', darkEnd: '#9f1239' }
         };
         
         // Loading spinner
@@ -1140,7 +1156,7 @@
         }
         
         // Load saved theme
-        const savedTheme = localStorage.getItem('colorTheme') || 'purple';
+        const savedTheme = localStorage.getItem('colorTheme') || 'slate';
         document.documentElement.style.setProperty('--primary-start', themes[savedTheme].start);
         document.documentElement.style.setProperty('--primary-end', themes[savedTheme].end);
         document.documentElement.style.setProperty('--primary-dark-start', themes[savedTheme].darkStart);
@@ -1175,6 +1191,15 @@
                 updateCourseProgress();
                 settingsModal.classList.remove('active');
                 alert('Course progress has been reset!');
+            }
+        });
+        
+        clearStorage.addEventListener('click', function() {
+            if (confirm('Clear ALL storage including settings and progress? This cannot be undone.')) {
+                localStorage.clear();
+                settingsModal.classList.remove('active');
+                alert('All storage cleared! Page will reload.');
+                location.reload();
             }
         });
         

@@ -1,0 +1,78 @@
+Add after line 7 (after <style>):
+        :root {
+            --primary-start: #667eea;
+            --primary-end: #764ba2;
+        }
+
+Add after line 360 (after .close-settings:hover):
+        
+        /* Color Theme Selector */
+        .theme-colors {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .theme-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .theme-color:hover {
+            transform: scale(1.1);
+        }
+        .theme-color.active {
+            border-color: white;
+            box-shadow: 0 0 0 2px var(--primary-start);
+        }
+
+Add in settings modal after Dark Mode option:
+        <div class="settings-option">
+            <label>Color Theme</label>
+            <div class="theme-colors">
+                <div class="theme-color active" data-theme="purple" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                <div class="theme-color" data-theme="blue" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                <div class="theme-color" data-theme="green" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+                <div class="theme-color" data-theme="orange" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                <div class="theme-color" data-theme="red" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+            </div>
+        </div>
+
+Add in JavaScript after resetProgress variable:
+        const themeColors = document.querySelectorAll('.theme-color');
+        
+        // Color themes
+        const themes = {
+            purple: { start: '#667eea', end: '#764ba2' },
+            blue: { start: '#4facfe', end: '#00f2fe' },
+            green: { start: '#43e97b', end: '#38f9d7' },
+            orange: { start: '#fa709a', end: '#fee140' },
+            red: { start: '#f093fb', end: '#f5576c' }
+        };
+
+Add after dark mode initialization:
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('colorTheme') || 'purple';
+        document.documentElement.style.setProperty('--primary-start', themes[savedTheme].start);
+        document.documentElement.style.setProperty('--primary-end', themes[savedTheme].end);
+        themeColors.forEach(tc => tc.classList.remove('active'));
+        document.querySelector(`[data-theme="${savedTheme}"]`).classList.add('active');
+
+Add after resetProgress event listener:
+        
+        // Theme color selection
+        themeColors.forEach(themeColor => {
+            themeColor.addEventListener('click', function() {
+                const theme = this.getAttribute('data-theme');
+                document.documentElement.style.setProperty('--primary-start', themes[theme].start);
+                document.documentElement.style.setProperty('--primary-end', themes[theme].end);
+                localStorage.setItem('colorTheme', theme);
+                themeColors.forEach(tc => tc.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+Replace all hardcoded gradient colors with var(--primary-start) and var(--primary-end)
