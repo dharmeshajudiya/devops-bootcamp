@@ -119,6 +119,30 @@
             padding: 0 10px;
         }
 
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 15px;
+        }
+        .speed-control label {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+        .speed-control select {
+            background: #374151;
+            color: white;
+            border: 1px solid #4b5563;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .speed-control select:hover {
+            background: #4b5563;
+        }
+
         /* Shared Button Styling */
         .nav-btn {
             background-color: #2563eb;
@@ -581,6 +605,18 @@
             <div class="player-controls">
                 <button id="prevBtn" class="nav-btn prev-btn">&#9664; Previous</button>
                 <div id="nowPlayingTitle" class="now-playing-text">Select a lesson to start watching</div>
+                <div class="speed-control">
+                    <label>Speed:</label>
+                    <select id="speedControl">
+                        <option value="0.5">0.5x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="1.75">1.75x</option>
+                        <option value="2">2x</option>
+                    </select>
+                </div>
                 <button id="nextBtn" class="nav-btn next-btn">Next &#9654;</button>
             </div>
         </div>
@@ -595,6 +631,18 @@
         const prevBtn = document.getElementById('prevBtn');
         const toggleBtn = document.getElementById('toggleBtn');
         const sidebar = document.getElementById('sidebar');
+        const speedControl = document.getElementById('speedControl');
+        
+        // Load saved playback speed
+        const savedSpeed = localStorage.getItem('playbackSpeed') || '1';
+        speedControl.value = savedSpeed;
+        player.playbackRate = parseFloat(savedSpeed);
+        
+        // Save and apply speed changes
+        speedControl.addEventListener('change', function() {
+            player.playbackRate = parseFloat(this.value);
+            localStorage.setItem('playbackSpeed', this.value);
+        });
         
         toggleBtn.addEventListener('click', function() {
             sidebar.classList.toggle('hidden');
@@ -668,6 +716,9 @@
             }
             
             player.play();
+
+            // Apply saved playback speed
+            player.playbackRate = parseFloat(speedControl.value);
 
             // Setup Buttons State
             updateButtonStates();
