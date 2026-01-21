@@ -11,7 +11,7 @@
             color: #1a202c;
             margin: 0;
             padding: 0;
-            transition: background 0.3s, color 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         body.dark-mode {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -24,21 +24,22 @@
             top: 15px;
             left: 360px;
             z-index: 1001;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px) saturate(180%);
+            -webkit-backdrop-filter: blur(15px) saturate(180%);
             color: var(--primary-start);
             border: 2px solid var(--primary-start);
             width: 36px;
             height: 36px;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 1.1rem;
             font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(10px);
         }
         body.dark-mode .toggle-btn {
             background: rgba(45, 55, 72, 0.95);
@@ -49,8 +50,8 @@
             background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
             color: white;
             border-color: transparent;
-            transform: translateX(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            transform: translateX(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), 0 0 20px rgba(102, 126, 234, 0.4);
         }
         .toggle-btn.collapsed {
             left: 15px;
@@ -68,17 +69,20 @@
         /* Left Sidebar */
         .sidebar {
             width: 350px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             overflow-y: auto;
-            border-right: 1px solid rgba(102, 126, 234, 0.2);
-            transition: margin-left 0.3s ease;
-            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
         body.dark-mode .sidebar {
-            background: rgba(26, 32, 44, 0.95);
-            border-right-color: rgba(102, 126, 234, 0.3);
-            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
+            background: rgba(26, 32, 44, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-right-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
         .sidebar.hidden {
             margin-left: -350px;
@@ -94,6 +98,19 @@
             font-weight: 600;
             border-bottom: 1px solid rgba(102, 126, 234, 0.3);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .time-remaining {
+            padding: 10px 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--primary-start);
+            font-weight: 600;
+        }
+        body.dark-mode .time-remaining {
+            background: rgba(102, 126, 234, 0.2);
+            color: #a0aec0;
         }
         body.dark-mode .sidebar-title {
             background: linear-gradient(135deg, var(--primary-dark-start) 0%, var(--primary-dark-end) 100%);
@@ -235,7 +252,7 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
         body.dark-mode header {
             background: linear-gradient(135deg, var(--primary-dark-start) 0%, var(--primary-dark-end) 100%);
@@ -254,27 +271,47 @@
         }
         .settings-btn, .pip-btn, .loop-btn {
             background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
             padding: 8px 16px;
             border-radius: 12px;
             cursor: pointer;
             font-size: 1.2rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         .settings-btn:hover, .pip-btn:hover, .loop-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.35);
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 255, 255, 0.2);
         }
         .pip-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        .loop-btn.active {
+        .loop-btn.active, .autoplay-btn.active {
             background: rgba(72, 187, 120, 0.4);
             border-color: rgba(72, 187, 120, 0.6);
+        }
+        .autoplay-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .autoplay-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 255, 255, 0.2);
         }
         
         /* Settings Modal */
@@ -285,26 +322,42 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px) saturate(150%);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
             z-index: 2000;
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .settings-modal.active {
             display: flex;
         }
         .settings-content {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 30px;
-            border-radius: 16px;
+            border-radius: 20px;
             width: 90%;
             max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         body.dark-mode .settings-content {
-            background: #1a202c;
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             color: #e2e8f0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
         }
         .settings-content h2 {
             margin: 0 0 20px 0;
@@ -469,14 +522,50 @@
             height: 100%;
             background: linear-gradient(90deg, var(--primary-start) 0%, var(--primary-end) 100%);
             border-radius: 6px;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            to { left: 100%; }
         }
         .progress-percent {
             font-size: 0.9rem;
             font-weight: 700;
             min-width: 45px;
             text-align: right;
+        }
+        .badge-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-left: 10px;
+        }
+        .badge {
+            font-size: 1.5rem;
+            filter: grayscale(100%);
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+        .badge.earned {
+            filter: grayscale(0%);
+            opacity: 1;
+            animation: badgePop 0.5s ease;
+        }
+        @keyframes badgePop {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3) rotate(10deg); }
         }
 
         .now-playing-text {
@@ -521,19 +610,37 @@
             color: white;
             border: none;
             padding: 10px 20px;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             min-width: 100px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .nav-btn:active::before {
+            width: 300px;
+            height: 300px;
         }
 
         .nav-btn:hover {
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5), 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
         .nav-btn:disabled {
@@ -563,8 +670,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        .module-header::after {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .module-title {
             flex: 1;
@@ -595,7 +706,8 @@
         }
         .module-header:hover {
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
         }
         body.dark-mode .module-header {
             background: linear-gradient(135deg, var(--primary-dark-start) 0%, var(--primary-dark-end) 100%);
@@ -640,13 +752,15 @@
             padding: 12px 20px;
             text-decoration: none;
             color: #2d3748;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            position: relative;
         }
         a:hover {
-            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
             color: #667eea;
-            transform: translateX(5px);
+            transform: translateX(8px) scale(1.02);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
         body.dark-mode a {
             color: #cbd5e0;
@@ -680,19 +794,26 @@
             border-radius: 12px;
             border: 2px solid rgba(102, 126, 234, 0.3);
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
         }
         a:hover .file-tag {
             background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
             color: white;
             border-color: transparent;
-            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: scale(1.05);
         }
         a.active .file-tag {
             background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             color: white;
             border-color: transparent;
-            box-shadow: 0 4px 10px rgba(72, 187, 120, 0.3);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.5), 0 0 20px rgba(72, 187, 120, 0.3);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         .lesson-name {
             font-weight: 500;
@@ -707,8 +828,9 @@
             left: 0;
             height: 3px;
             background: linear-gradient(90deg, var(--primary-start) 0%, var(--primary-end) 100%);
-            transition: width 0.3s ease;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 0 0 0 2px;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
         }
         a {
             position: relative;
@@ -801,6 +923,144 @@
             transform: scale(1.02);
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
+        
+        /* Notes Panel */
+        .notes-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .notes-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3), 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        .notes-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px) saturate(150%);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .notes-modal.active {
+            display: flex;
+        }
+        .notes-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        body.dark-mode .notes-content {
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            color: #e2e8f0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        .notes-content h2 {
+            margin: 0 0 15px 0;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .notes-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            max-height: 300px;
+        }
+        .note-item {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary-start);
+        }
+        body.dark-mode .note-item {
+            background: rgba(102, 126, 234, 0.2);
+        }
+        .note-timestamp {
+            font-size: 0.75rem;
+            color: var(--primary-start);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .note-text {
+            font-size: 0.9rem;
+        }
+        .note-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            resize: vertical;
+            min-height: 60px;
+        }
+        body.dark-mode .note-input {
+            background: rgba(45, 55, 72, 0.8);
+            border-color: rgba(102, 126, 234, 0.4);
+            color: #e2e8f0;
+        }
+        .add-note-btn {
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        .add-note-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .close-notes {
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .close-notes:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -810,6 +1070,7 @@
 <div class="layout">
     <div class="sidebar" id="sidebar">
         <div class="sidebar-title">DevOps Bootcamp</div>
+        <div class="time-remaining" id="timeRemaining">⏱️ Estimated time: Calculating...</div>
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="🔍 Search lessons..." aria-label="Search lessons">
         </div>
@@ -1217,7 +1478,15 @@
     <div class="content">
         <header>
             <h1>DevOps Bootcamp</h1>
+            <div class="badge-container">
+                <span class="badge" id="badge25" title="25% Complete">🥉</span>
+                <span class="badge" id="badge50" title="50% Complete">🥈</span>
+                <span class="badge" id="badge75" title="75% Complete">🥇</span>
+                <span class="badge" id="badge100" title="100% Complete">🏆</span>
+            </div>
             <div class="header-buttons">
+                <button id="autoplayBtn" class="autoplay-btn active" title="Auto-play Next (A)">▶️</button>
+                <button id="notesBtn" class="notes-btn" title="Notes (N)">📝</button>
                 <button id="loopBtn" class="loop-btn" title="Loop Current Video (L)">🔁</button>
                 <button id="pipBtn" class="pip-btn" title="Picture-in-Picture (P)">📺</button>
                 <button id="settingsBtn" class="settings-btn" title="Settings (S)">⚙️</button>
@@ -1296,6 +1565,17 @@
     </div>
 </div>
 
+<!-- Notes Modal -->
+<div id="notesModal" class="notes-modal">
+    <div class="notes-content">
+        <h2>📝 Lesson Notes</h2>
+        <div id="notesList" class="notes-list"></div>
+        <textarea id="noteInput" class="note-input" placeholder="Add a note at current timestamp..."></textarea>
+        <button id="addNoteBtn" class="add-note-btn">Add Note</button>
+        <button id="closeNotes" class="close-notes">Close</button>
+    </div>
+</div>
+
 <!-- Keyboard Shortcuts Modal -->
 <div id="shortcutsModal" class="shortcuts-modal">
     <div class="shortcuts-content">
@@ -1321,6 +1601,12 @@
             
             <div class="shortcut-key">L</div>
             <div class="shortcut-desc">Loop Current Video</div>
+            
+            <div class="shortcut-key">N</div>
+            <div class="shortcut-desc">Open Notes</div>
+            
+            <div class="shortcut-key">A</div>
+            <div class="shortcut-desc">Toggle Auto-play</div>
             
             <div class="shortcut-key">S</div>
             <div class="shortcut-desc">Open Settings</div>
@@ -1360,6 +1646,14 @@
         const shortcutsModal = document.getElementById('shortcutsModal');
         const closeShortcuts = document.getElementById('closeShortcuts');
         const themeColors = document.querySelectorAll('.theme-color');
+        const notesBtn = document.getElementById('notesBtn');
+        const notesModal = document.getElementById('notesModal');
+        const closeNotes = document.getElementById('closeNotes');
+        const noteInput = document.getElementById('noteInput');
+        const addNoteBtn = document.getElementById('addNoteBtn');
+        const notesList = document.getElementById('notesList');
+        const autoplayBtn = document.getElementById('autoplayBtn');
+        const timeRemaining = document.getElementById('timeRemaining');
         
         // Color themes - Subtle and eye-friendly
         const themes = {
@@ -1395,6 +1689,16 @@
         // Loop current video
         let isLooping = localStorage.getItem('loopVideo') === 'true';
         if (isLooping) loopBtn.classList.add('active');
+        
+        // Auto-play toggle
+        let isAutoplay = localStorage.getItem('autoplay') !== 'false';
+        if (!isAutoplay) autoplayBtn.classList.remove('active');
+        
+        autoplayBtn.addEventListener('click', () => {
+            isAutoplay = !isAutoplay;
+            autoplayBtn.classList.toggle('active');
+            localStorage.setItem('autoplay', isAutoplay);
+        });
         
         loopBtn.addEventListener('click', () => {
             isLooping = !isLooping;
@@ -1475,6 +1779,63 @@
             if (e.target === shortcutsModal) shortcutsModal.classList.remove('active');
         });
         
+        // Notes Modal
+        notesBtn.addEventListener('click', () => {
+            notesModal.classList.add('active');
+            loadNotes();
+        });
+        closeNotes.addEventListener('click', () => notesModal.classList.remove('active'));
+        notesModal.addEventListener('click', (e) => {
+            if (e.target === notesModal) notesModal.classList.remove('active');
+        });
+        
+        // Add note
+        addNoteBtn.addEventListener('click', () => {
+            const noteText = noteInput.value.trim();
+            if (noteText && currentLinkIndex >= 0) {
+                const link = allLinks[currentLinkIndex];
+                const videoId = link.getAttribute('data-video-id');
+                const timestamp = Math.floor(player.currentTime);
+                const note = { text: noteText, timestamp, videoId, date: new Date().toISOString() };
+                
+                const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+                notes.push(note);
+                localStorage.setItem('notes', JSON.stringify(notes));
+                
+                noteInput.value = '';
+                loadNotes();
+            }
+        });
+        
+        function loadNotes() {
+            if (currentLinkIndex < 0) {
+                notesList.innerHTML = '<p style="text-align:center;color:#9ca3af;">Play a video to add notes</p>';
+                return;
+            }
+            
+            const link = allLinks[currentLinkIndex];
+            const videoId = link.getAttribute('data-video-id');
+            const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+            const videoNotes = notes.filter(n => n.videoId === videoId);
+            
+            if (videoNotes.length === 0) {
+                notesList.innerHTML = '<p style="text-align:center;color:#9ca3af;">No notes for this lesson</p>';
+            } else {
+                notesList.innerHTML = videoNotes.map(note => `
+                    <div class="note-item">
+                        <div class="note-timestamp">${formatTime(note.timestamp)}</div>
+                        <div class="note-text">${note.text}</div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
         toggleDarkMode.addEventListener('click', function() {
             document.body.classList.toggle('dark-mode');
             toggleDarkMode.classList.toggle('active');
@@ -1537,9 +1898,16 @@
             toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '&gt;' : '&lt;';
         });
         
+        const allLinks = Array.from(document.querySelectorAll('.video-link'));
+        
+        let currentLinkIndex = -1;
+        
         // Module collapse/expand - Accordion (only one open at a time)
         document.querySelectorAll('.module-header').forEach(header => {
-            header.addEventListener('click', function() {
+            header.addEventListener('click', function(e) {
+                // Prevent if clicking on progress indicators
+                if (e.target.closest('.module-progress')) return;
+                
                 const currentModule = this.parentElement;
                 const isCurrentlyCollapsed = currentModule.classList.contains('collapsed');
                 
@@ -1554,10 +1922,6 @@
                 }
             });
         });
-        
-        const allLinks = Array.from(document.querySelectorAll('.video-link'));
-        
-        let currentLinkIndex = -1;
 
         // Progress tracking
         function saveProgress(videoId, currentTime, duration) {
@@ -1581,7 +1945,43 @@
             const percentage = Math.round((completedCount / totalCount) * 100);
             document.getElementById('courseProgressFill').style.width = percentage + '%';
             document.getElementById('courseProgressPercent').textContent = percentage + '%';
+            updateBadges(percentage);
+            updateTimeRemaining();
             updateModuleProgress();
+        }
+        
+        // Update badges
+        function updateBadges(percentage) {
+            const badges = [
+                { id: 'badge25', threshold: 25 },
+                { id: 'badge50', threshold: 50 },
+                { id: 'badge75', threshold: 75 },
+                { id: 'badge100', threshold: 100 }
+            ];
+            badges.forEach(badge => {
+                const elem = document.getElementById(badge.id);
+                if (percentage >= badge.threshold) {
+                    elem.classList.add('earned');
+                } else {
+                    elem.classList.remove('earned');
+                }
+            });
+        }
+        
+        // Calculate and update time remaining
+        function updateTimeRemaining() {
+            const avgVideoLength = 10; // minutes per video (estimate)
+            const completedCount = allLinks.filter(link => link.classList.contains('completed')).length;
+            const remainingCount = allLinks.length - completedCount;
+            const totalMinutes = remainingCount * avgVideoLength;
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            
+            if (remainingCount === 0) {
+                timeRemaining.textContent = '🎉 Course Complete!';
+            } else {
+                timeRemaining.textContent = `⏱️ Estimated time: ${hours}h ${minutes}m (${remainingCount} lessons left)`;
+            }
         }
         
         // Update module progress indicators
@@ -1704,7 +2104,7 @@
 
         // 2. VIDEO ENDED Event (Auto-play next)
         player.addEventListener('ended', function() {
-            if (!isLooping && currentLinkIndex < allLinks.length - 1) {
+            if (!isLooping && isAutoplay && currentLinkIndex < allLinks.length - 1) {
                 loadVideo(currentLinkIndex + 1);
             }
         });
@@ -1816,6 +2216,16 @@
                 case '?': // ? - Show shortcuts
                     e.preventDefault();
                     shortcutsModal.classList.add('active');
+                    break;
+                case 'n': // N - Notes
+                case 'N':
+                    e.preventDefault();
+                    notesBtn.click();
+                    break;
+                case 'a': // A - Auto-play
+                case 'A':
+                    e.preventDefault();
+                    autoplayBtn.click();
                     break;
             }
         });
