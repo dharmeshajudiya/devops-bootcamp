@@ -2,6 +2,10 @@
 
 A modern, feature-rich video player for DevOps Bootcamp course with advanced learning features and beautiful UI.
 
+## 🌐 Live Demo
+
+Check out the live version at: **[dharmeshajudiya.in](https://dharmeshajudiya.in)**
+
 ## ✨ Features
 
 ### 🎥 Video Player
