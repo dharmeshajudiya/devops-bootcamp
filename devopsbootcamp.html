@@ -730,6 +730,50 @@
                 }
             }
         });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ignore if typing in input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            switch(e.key) {
+                case ' ': // Space - Play/Pause
+                    e.preventDefault();
+                    if (player.paused) player.play();
+                    else player.pause();
+                    break;
+                case 'ArrowLeft': // Left - Rewind 10s
+                    e.preventDefault();
+                    player.currentTime = Math.max(0, player.currentTime - 10);
+                    break;
+                case 'ArrowRight': // Right - Forward 10s
+                    e.preventDefault();
+                    player.currentTime = Math.min(player.duration, player.currentTime + 10);
+                    break;
+                case 'ArrowUp': // Up - Previous lesson
+                    e.preventDefault();
+                    if (currentLinkIndex > 0) loadVideo(currentLinkIndex - 1);
+                    break;
+                case 'ArrowDown': // Down - Next lesson
+                    e.preventDefault();
+                    if (currentLinkIndex < allLinks.length - 1) loadVideo(currentLinkIndex + 1);
+                    break;
+                case 'f': // F - Fullscreen
+                case 'F':
+                    e.preventDefault();
+                    if (!document.fullscreenElement) {
+                        player.requestFullscreen();
+                    } else {
+                        document.exitFullscreen();
+                    }
+                    break;
+                case 'm': // M - Mute/Unmute
+                case 'M':
+                    e.preventDefault();
+                    player.muted = !player.muted;
+                    break;
+            }
+        });
     });
 </script>
 
